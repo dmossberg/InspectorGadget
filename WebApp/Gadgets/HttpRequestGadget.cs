@@ -15,6 +15,7 @@ namespace InspectorGadget.WebApp.Gadgets
             public string RequestUrl { get; set; }
             public string RequestHostName { get; set; }
             public bool IgnoreServerCertificateErrors { get; set; }
+            public string RequestBearerToken { get; set; }
         }
 
         public class Result
@@ -35,7 +36,18 @@ namespace InspectorGadget.WebApp.Gadgets
             {
                 httpClient.DefaultRequestHeaders.Add(HeaderNames.Host, request.RequestHostName);
             }
-            return new Result { ResponseBody = await httpClient.GetStringAsync(request.RequestUrl) };
+            if (!string.IsNullOrWhiteSpace(request.RequestBearerToken))
+            {
+                httpClient.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", request.RequestBearerToken);
+            }
+
+            var result = new Result { 
+                ResponseBody = await httpClient.GetStringAsync(request.RequestUrl)
+
+            };
+
+            return result;
         }
     }
 }
